@@ -4,6 +4,10 @@ import SalaryBreakdownChart from "../component/salaryBreakdownChart";
 import LoadingSpinner from "../component/loadingSpinner";
 import LoadingSpinner1 from "../component/loadingSpinner";
 import { BillPayment } from "./BillPayment";
+import { Expense } from "./Expense";
+import Income from "./Income";
+import Dashboard from "./Dashboard";
+
 // Firebase imports ko comment kiya gaya hai
 // import { initializeApp } from 'firebase/app';
 // import { getAuth, signInWithCustomToken, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
@@ -183,48 +187,48 @@ export default function App() {
   //   }
   // };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    try {
-      if (editingItem && editingItem.sheetIndex) {
-        // Update mode
-        const res = await fetch("/api/updateIncome", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sheetIndex: editingItem.sheetIndex,
-            date: transactionDate,
-            amount: parseFloat(incomeAmount),
-            source: incomeSource,
-            description: incomeDescription,
-          }),
-        });
-        if (!res.ok) throw new Error("Failed to update income");
-        setEditingItem(null);
-      } else {
-        // Add mode
-        const res = await fetch("/api/addIncome", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            date: transactionDate,
-            amount: parseFloat(incomeAmount),
-            source: incomeSource,
-            description: incomeDescription,
-          }),
-        });
-        if (!res.ok) throw new Error("Failed to add income");
-      }
-      await fetchIncomeData();
-      setIncomeAmount("");
-      setIncomeDescription("");
-      setIncomeSource("Axis Bank");
-      setTransactionDate(new Date().toISOString().slice(0, 10));
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setError(null);
+  //   try {
+  //     if (editingItem && editingItem.sheetIndex) {
+  //       // Update mode
+  //       const res = await fetch("/api/updateIncome", {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({
+  //           sheetIndex: editingItem.sheetIndex,
+  //           date: transactionDate,
+  //           amount: parseFloat(incomeAmount),
+  //           source: incomeSource,
+  //           description: incomeDescription,
+  //         }),
+  //       });
+  //       if (!res.ok) throw new Error("Failed to update income");
+  //       setEditingItem(null);
+  //     } else {
+  //       // Add mode
+  //       const res = await fetch("/api/addIncome", {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({
+  //           date: transactionDate,
+  //           amount: parseFloat(incomeAmount),
+  //           source: incomeSource,
+  //           description: incomeDescription,
+  //         }),
+  //       });
+  //       if (!res.ok) throw new Error("Failed to add income");
+  //     }
+  //     await fetchIncomeData();
+  //     setIncomeAmount("");
+  //     setIncomeDescription("");
+  //     setIncomeSource("Axis Bank");
+  //     setTransactionDate(new Date().toISOString().slice(0, 10));
+  //   } catch (err) {
+  //     setError(err.message);
+  //   }
+  // };
 
   const fetchIncomeData = async () => {
     try {
@@ -794,7 +798,7 @@ export default function App() {
             className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold transition-all duration-300 ease-in-out ${
               currentPage === "billpayment"
                 ? "bg-black text-white shadow-lg" // Active: solid black
-                : "bg-gray-100 text-black hover:bg-gray-200" // Inactive: light gray with black text
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300" // Inactive: light gray with black text
             }`}
           >
             Bill Payment
@@ -813,225 +817,212 @@ export default function App() {
         </div>
 
         {currentPage === "dashboard" && (
-          <div className="mb-8 p-6 bg-indigo-100 rounded-lg shadow-md text-center">
-            <h2 className="text-2xl font-bold mb-4 text-indigo-700">
-              Dashboard
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-6 bg-green-50 rounded-lg shadow-md border-b-4 border-green-500">
-                <h3 className="text-xl font-bold mb-2 text-green-700">
-                  Total Income
-                </h3>
-                <p className="text-3xl font-extrabold text-green-900">
-                  ₹ {totalIncome.toFixed(2)}
-                </p>
-              </div>
-              <div className="p-6 bg-red-50 rounded-lg shadow-md border-b-4 border-red-500">
-                <h3 className="text-xl font-bold mb-2 text-red-700">
-                  Total Expenses
-                </h3>
-                <p className="text-3xl font-extrabold text-red-900">
-                  ₹ {totalExpenses.toFixed(2)}
-                </p>
-              </div>
-              <div className="p-6 bg-purple-50 rounded-lg shadow-md border-b-4 border-purple-500">
-                <h3 className="text-xl font-bold mb-2 text-purple-700">
-                  Net Balance
-                </h3>
-                <p
-                  className={`text-3xl font-extrabold ${
-                    totalBalance >= 0 ? "text-green-900" : "text-red-900"
-                  }`}
-                >
-                  ₹ {totalBalance.toFixed(2)}
-                </p>
-              </div>
-            </div>
-            <div>
-              {/* Loading spinner show karo jab tak loading true hai */}
-              {loading ? (
-                <div className="flex items-center justify-center min-h-[300px]">
-                  <LoadingSpinner1 />
-                  <span className="ml-3 text-gray-600 font-semibold">
-                    लोड हो रहा है...
-                  </span>
-                </div>
-              ) : (
-                <SalaryBreakdownChart
-                  homeBudget={homeBudget}
-                  investBudget={investBudget}
-                  personalBudget={personalBudget}
-                  homeExpenses={homeExpenses}
-                  investExpenses={investExpenses}
-                  personalExpenses={personalExpenses}
-                  loading={loading}
-                />
-              )}
-            </div>
-            {/* <div className="mt-8 w-full bg-gray-50 rounded-lg shadow-md text-center">
-              <SalaryBreakdownChart
-                homeBudget={homeBudget}
-                investBudget={investBudget}
-                personalBudget={personalBudget}
-                homeExpenses={homeExpenses}
-                investExpenses={investExpenses}
-                personalExpenses={personalExpenses}
-                  loading={loading} 
-              />
-            </div> */}
+          <Dashboard />
+          // <div className="mb-8 p-6 bg-indigo-100 rounded-lg shadow-md text-center">
+          //   <h2 className="text-2xl font-bold mb-4 text-indigo-700">
+          //     Dashboard
+          //   </h2>
+          //   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          //     <div className="p-6 bg-green-50 rounded-lg shadow-md border-b-4 border-green-500">
+          //       <h3 className="text-xl font-bold mb-2 text-green-700">
+          //         Total Income
+          //       </h3>
+          //       <p className="text-3xl font-extrabold text-green-900">
+          //         ₹ {totalIncome.toFixed(2)}
+          //       </p>
+          //     </div>
+          //     <div className="p-6 bg-red-50 rounded-lg shadow-md border-b-4 border-red-500">
+          //       <h3 className="text-xl font-bold mb-2 text-red-700">
+          //         Total Expenses
+          //       </h3>
+          //       <p className="text-3xl font-extrabold text-red-900">
+          //         ₹ {totalExpenses.toFixed(2)}
+          //       </p>
+          //     </div>
+          //     <div className="p-6 bg-purple-50 rounded-lg shadow-md border-b-4 border-purple-500">
+          //       <h3 className="text-xl font-bold mb-2 text-purple-700">
+          //         Net Balance
+          //       </h3>
+          //       <p
+          //         className={`text-3xl font-extrabold ${
+          //           totalBalance >= 0 ? "text-green-900" : "text-red-900"
+          //         }`}
+          //       >
+          //         ₹ {totalBalance.toFixed(2)}
+          //       </p>
+          //     </div>
+          //   </div>
+          //   <div>
+          //     {/* Loading spinner show karo jab tak loading true hai */}
+          //     {loading ? (
+          //       <div className="flex items-center justify-center min-h-[300px]">
+          //         <LoadingSpinner1 />
+          //         <span className="ml-3 text-gray-600 font-semibold">
+          //           लोड हो रहा है...
+          //         </span>
+          //       </div>
+          //     ) : (
+          //       <SalaryBreakdownChart
+          //         homeBudget={homeBudget}
+          //         investBudget={investBudget}
+          //         personalBudget={personalBudget}
+          //         homeExpenses={homeExpenses}
+          //         investExpenses={investExpenses}
+          //         personalExpenses={personalExpenses}
+          //         loading={loading}
+          //       />
+          //     )}
+          //   </div>
 
-            {/* Salary Income Container */}
-            {/* Salary Income Breakdown - Modern Card Design */}
-
-            <div className="mt-8 flex justify-center align-items-center">
-              <div className="w-full max-w-3xl bg-gradient-to-br from-green-50 via-white to-blue-50 rounded-2xl shadow-xl p-8 border border-green-200">
-                <h2 className="text-2xl font-extrabold text-green-700 mb-6 tracking-tight">
-                  Salary Income Breakdown
-                </h2>
-                <div className="flex justify-center mb-8 gap-4">
-                  <div className="mt- grid grid-cols-1 mdgrid-cols-2 gap:-6">
-                    <div className="p-6 bg-green-50 rounded-lg shadow-md border-4 border-green-500">
-                      <h3 className="text-xl font-bold mb-2 text-green-700">
-                        Salary Income
-                      </h3>
-                      <p className="text-3xl font-extrabold text-green-900">
-                        ₹ {totalSalaryIncome.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
-                  <div className="flex items-center gap-3">
-                    <span className="inline-block bg-green-100 text-green-700 px-4 py-2 rounded-full font-bold text-lg shadow">
-                      Total Salary Income
-                    </span>
-                    <span className="text-3xl font-extrabold text-green-900 tracking-wide">
-                      ₹ {totalSalaryIncome.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex gap-2">
-                    <span className="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold text-sm">
-                      50% Home
-                    </span>
-                    <span className="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold text-sm">
-                      30% Investment
-                    </span>
-                    <span className="inline-block bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold text-sm">
-                      20% Personal
-                    </span>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Home */}
-                  <div className="bg-blue-50 rounded-xl shadow border-4 border-blue-500 p-6 flex flex-col justify-between">
-                    <h3 className="text-lg font-bold text-blue-700 mb-2">
-                      Home (50%)
-                    </h3>
-                    <div className="mb-2">
-                      <span className="block text-gray-700 font-semibold">
-                        Budget:
-                      </span>
-                      <span className="text-xl font-bold text-blue-900">
-                        ₹ {homeBudget.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="mb-2">
-                      <span className="block text-gray-700 font-semibold">
-                        Expense:
-                      </span>
-                      <span className="text-xl font-bold text-red-600">
-                        ₹ {homeExpenses.toFixed(2)}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="block text-gray-700 font-semibold">
-                        Balance:
-                      </span>
-                      <span
-                        className={`text-xl font-bold ${
-                          remainingHome >= 0 ? "text-green-700" : "text-red-700"
-                        }`}
-                      >
-                        ₹ {remainingHome.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                  {/* Investment */}
-                  <div className="bg-green-50 rounded-xl shadow border-4 border-green-500 p-6 flex flex-col justify-between">
-                    <h3 className="text-lg font-bold text-green-700 mb-2">
-                      Investment (30%)
-                    </h3>
-                    <div className="mb-2">
-                      <span className="block text-gray-700 font-semibold">
-                        Budget:
-                      </span>
-                      <span className="text-xl font-bold text-green-900">
-                        ₹ {investBudget.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="mb-2">
-                      <span className="block text-gray-700 font-semibold">
-                        Expense:
-                      </span>
-                      <span className="text-xl font-bold text-red-600">
-                        ₹ {investExpenses.toFixed(2)}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="block text-gray-700 font-semibold">
-                        Balance:
-                      </span>
-                      <span
-                        className={`text-xl font-bold ${
-                          remainingInvest >= 0
-                            ? "text-green-700"
-                            : "text-red-700"
-                        }`}
-                      >
-                        ₹ {remainingInvest.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                  {/* Personal */}
-                  <div className="bg-red-50 rounded-xl shadow border-4 border-red-500 p-6 flex flex-col justify-between">
-                    <h3 className="text-lg font-bold text-red-700 mb-2">
-                      Personal (20%)
-                    </h3>
-                    <div className="mb-2">
-                      <span className="block text-gray-700 font-semibold">
-                        Budget:
-                      </span>
-                      <span className="text-xl font-bold text-red-900">
-                        ₹ {personalBudget.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="mb-2">
-                      <span className="block text-gray-700 font-semibold">
-                        Expense:
-                      </span>
-                      <span className="text-xl font-bold text-red-600">
-                        ₹ {personalExpenses.toFixed(2)}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="block text-gray-700 font-semibold">
-                        Balance:
-                      </span>
-                      <span
-                        className={`text-xl font-bold ${
-                          remainingPersonal >= 0
-                            ? "text-green-700"
-                            : "text-red-700"
-                        }`}
-                      >
-                        ₹ {remainingPersonal.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          //   <div className="mt-8 flex justify-center align-items-center">
+          //     <div className="w-full max-w-3xl bg-gradient-to-br from-green-50 via-white to-blue-50 rounded-2xl shadow-xl p-8 border border-green-200">
+          //       <h2 className="text-2xl font-extrabold text-green-700 mb-6 tracking-tight">
+          //         Salary Income Breakdown
+          //       </h2>
+          //       <div className="flex justify-center mb-8 gap-4">
+          //         <div className="mt- grid grid-cols-1 mdgrid-cols-2 gap:-6">
+          //           <div className="p-6 bg-green-50 rounded-lg shadow-md border-4 border-green-500">
+          //             <h3 className="text-xl font-bold mb-2 text-green-700">
+          //               Salary Income
+          //             </h3>
+          //             <p className="text-3xl font-extrabold text-green-900">
+          //               ₹ {totalSalaryIncome.toFixed(2)}
+          //             </p>
+          //           </div>
+          //         </div>
+          //       </div>
+          //       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+          //         <div className="flex items-center gap-3">
+          //           <span className="inline-block bg-green-100 text-green-700 px-4 py-2 rounded-full font-bold text-lg shadow">
+          //             Total Salary Income
+          //           </span>
+          //           <span className="text-3xl font-extrabold text-green-900 tracking-wide">
+          //             ₹ {totalSalaryIncome.toFixed(2)}
+          //           </span>
+          //         </div>
+          //         <div className="flex gap-2">
+          //           <span className="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold text-sm">
+          //             50% Home
+          //           </span>
+          //           <span className="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold text-sm">
+          //             30% Investment
+          //           </span>
+          //           <span className="inline-block bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold text-sm">
+          //             20% Personal
+          //           </span>
+          //         </div>
+          //       </div>
+          //       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          //         {/* Home */}
+          //         <div className="bg-blue-50 rounded-xl shadow border-4 border-blue-500 p-6 flex flex-col justify-between">
+          //           <h3 className="text-lg font-bold text-blue-700 mb-2">
+          //             Home (50%)
+          //           </h3>
+          //           <div className="mb-2">
+          //             <span className="block text-gray-700 font-semibold">
+          //               Budget:
+          //             </span>
+          //             <span className="text-xl font-bold text-blue-900">
+          //               ₹ {homeBudget.toFixed(2)}
+          //             </span>
+          //           </div>
+          //           <div className="mb-2">
+          //             <span className="block text-gray-700 font-semibold">
+          //               Expense:
+          //             </span>
+          //             <span className="text-xl font-bold text-red-600">
+          //               ₹ {homeExpenses.toFixed(2)}
+          //             </span>
+          //           </div>
+          //           <div>
+          //             <span className="block text-gray-700 font-semibold">
+          //               Balance:
+          //             </span>
+          //             <span
+          //               className={`text-xl font-bold ${
+          //                 remainingHome >= 0 ? "text-green-700" : "text-red-700"
+          //               }`}
+          //             >
+          //               ₹ {remainingHome.toFixed(2)}
+          //             </span>
+          //           </div>
+          //         </div>
+          //         {/* Investment */}
+          //         <div className="bg-green-50 rounded-xl shadow border-4 border-green-500 p-6 flex flex-col justify-between">
+          //           <h3 className="text-lg font-bold text-green-700 mb-2">
+          //             Investment (30%)
+          //           </h3>
+          //           <div className="mb-2">
+          //             <span className="block text-gray-700 font-semibold">
+          //               Budget:
+          //             </span>
+          //             <span className="text-xl font-bold text-green-900">
+          //               ₹ {investBudget.toFixed(2)}
+          //             </span>
+          //           </div>
+          //           <div className="mb-2">
+          //             <span className="block text-gray-700 font-semibold">
+          //               Expense:
+          //             </span>
+          //             <span className="text-xl font-bold text-red-600">
+          //               ₹ {investExpenses.toFixed(2)}
+          //             </span>
+          //           </div>
+          //           <div>
+          //             <span className="block text-gray-700 font-semibold">
+          //               Balance:
+          //             </span>
+          //             <span
+          //               className={`text-xl font-bold ${
+          //                 remainingInvest >= 0
+          //                   ? "text-green-700"
+          //                   : "text-red-700"
+          //               }`}
+          //             >
+          //               ₹ {remainingInvest.toFixed(2)}
+          //             </span>
+          //           </div>
+          //         </div>
+          //         {/* Personal */}
+          //         <div className="bg-red-50 rounded-xl shadow border-4 border-red-500 p-6 flex flex-col justify-between">
+          //           <h3 className="text-lg font-bold text-red-700 mb-2">
+          //             Personal (20%)
+          //           </h3>
+          //           <div className="mb-2">
+          //             <span className="block text-gray-700 font-semibold">
+          //               Budget:
+          //             </span>
+          //             <span className="text-xl font-bold text-red-900">
+          //               ₹ {personalBudget.toFixed(2)}
+          //             </span>
+          //           </div>
+          //           <div className="mb-2">
+          //             <span className="block text-gray-700 font-semibold">
+          //               Expense:
+          //             </span>
+          //             <span className="text-xl font-bold text-red-600">
+          //               ₹ {personalExpenses.toFixed(2)}
+          //             </span>
+          //           </div>
+          //           <div>
+          //             <span className="block text-gray-700 font-semibold">
+          //               Balance:
+          //             </span>
+          //             <span
+          //               className={`text-xl font-bold ${
+          //                 remainingPersonal >= 0
+          //                   ? "text-green-700"
+          //                   : "text-red-700"
+          //               }`}
+          //             >
+          //               ₹ {remainingPersonal.toFixed(2)}
+          //             </span>
+          //           </div>
+          //         </div>
+          //       </div>
+          //     </div>
+          //   </div>
+          // </div>
         )}
 
         {/* {currentPage === "dashboard" && (
@@ -1344,189 +1335,7 @@ export default function App() {
           </>
         )} */}
 
-        {currentPage === "income" && (
-          <>
-            {/* Add/Edit Income Form */}
-            <form
-              onSubmit={handleSubmit}
-              className="mb-8 p-6 bg-green-50 rounded-lg shadow-md"
-            >
-              <h2 className="text-2xl font-semibold mb-4 text-gray-700">
-                {editingItem ? "Edit Income" : "New Income jodein"}
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                <div className="flex flex-col">
-                  <label
-                    htmlFor="income-date"
-                    className="font-semibold text-gray-600 mb-1"
-                  >
-                    Date
-                  </label>
-                  <input
-                    id="income-date"
-                    type="date"
-                    value={transactionDate}
-                    onChange={(e) => setTransactionDate(e.target.value)}
-                    className="p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-green-500"
-                    required
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label
-                    htmlFor="income-amount"
-                    className="font-semibold text-gray-600 mb-1"
-                  >
-                    Amount
-                  </label>
-                  <input
-                    id="income-amount"
-                    type="number"
-                    value={incomeAmount}
-                    onChange={(e) => {
-                      // Only allow up to 2 decimals
-                      const val = e.target.value;
-                      // Regex: allow only numbers with up to 2 decimals
-                      if (/^\d*\.?\d{0,2}$/.test(val)) {
-                        setIncomeAmount(val);
-                      }
-                    }}
-                    placeholder="Amount"
-                    min="0"
-                    step="0.01" // <-- Add this for 2 decimal support
-                    className="p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-green-500"
-                    required
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label
-                    htmlFor="income-source"
-                    className="font-semibold text-gray-600 mb-1"
-                  >
-                    Source
-                  </label>
-                  <select
-                    id="income-source"
-                    value={incomeSource}
-                    onChange={(e) => setIncomeSource(e.target.value)}
-                    className="p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-green-500"
-                    required
-                  >
-                    <option value="Axis Bank">Axis Bank</option>
-                    <option value="ICICI Bank">ICICI Bank</option>
-                    <option value="Cash">Cash</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-                <div className="flex flex-col">
-                  <label
-                    htmlFor="income-description"
-                    className="font-semibold text-gray-600 mb-1"
-                  >
-                    Description
-                  </label>
-                  <input
-                    id="income-description"
-                    type="text"
-                    value={incomeDescription}
-                    onChange={(e) => setIncomeDescription(e.target.value)}
-                    placeholder="Description (e.g., Salary, Bonus)"
-                    className="p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-green-500"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out"
-                >
-                  {editingItem ? "Update Income" : "Save Income"}
-                </button>
-                {editingItem && (
-                  <button
-                    type="button"
-                    onClick={cancelEdit}
-                    className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out"
-                  >
-                    Cancel
-                  </button>
-                )}
-              </div>
-            </form>
-
-            {/* Income History List */}
-            <div className="bg-gray-50 p-6 rounded-lg shadow-md mb-8">
-              <h2 className="text-2xl font-semibold mb-4 text-gray-700">
-                Income History (
-                {viewType === "month" ? selectedMonth : selectedYear})
-              </h2>
-              {loading ? (
-                <div className="text-center text-gray-500 py-4">
-                  <LoadingSpinner1 />
-                </div>
-              ) : filteredIncomes.length === 0 ? (
-                <div className="text-center text-gray-500 py-4">
-                  No data available
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white rounded-lg shadow-sm">
-                    <thead>
-                      <tr className="bg-gray-200">
-                        <th className="py-3 px-4 text-left font-semibold text-gray-600">
-                          Date
-                        </th>
-                        <th className="py-3 px-4 text-left font-semibold text-gray-600">
-                          Amount
-                        </th>
-                        <th className="py-3 px-4 text-left font-semibold text-gray-600">
-                          Source
-                        </th>
-                        <th className="py-3 px-4 text-left font-semibold text-gray-600">
-                          Description
-                        </th>
-                        <th className="py-3 px-4 text-left font-semibold text-gray-600">
-                          Action
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredIncomes.map((income) => (
-                        <tr
-                          key={income.id}
-                          className="border-t border-gray-200 hover:bg-gray-100"
-                        >
-                          <td className="py-3 px-4">{income.date}</td>
-                          <td className="py-3 px-4 font-bold text-green-600">
-                            ₹ {income.amount.toFixed(2)}
-                          </td>
-                          <td className="py-3 px-4">{income.source}</td>
-                          <td className="py-3 px-4">{income.description}</td>
-                          <td className="py-3 px-4">
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => startEdit(income)}
-                                className="text-blue-600 hover:text-blue-800 transition-colors"
-                              >
-                                <EditIcon />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteExpense(income)}
-                                className="text-red-600 hover:text-red-800 transition-colors"
-                              >
-                                <TrashIcon />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </>
-        )}
+        {currentPage === "income" && <Income />}
 
         {currentPage === "expenses" && (
           <>

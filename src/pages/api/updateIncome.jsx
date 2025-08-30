@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     );
     await sheets.spreadsheets.values.update({
       spreadsheetId,
-      range: `Income Source!A${sheetIndex - 1}:D${sheetIndex - 1}`, // 0-based index, header is row 1
+      range: `Income Source!A${sheetIndex}:D${sheetIndex}`, // 0-based index, header is row 1
       valueInputOption: "RAW",
       requestBody: {
         values: [[date, amount, source, description]],
