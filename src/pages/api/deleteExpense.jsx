@@ -26,10 +26,10 @@ export default async function handler(req, res) {
         {
           deleteDimension: {
             range: {
-              sheetId: 825968614, // Your sheetId for "Expeses Detail"
+              sheetId: 825968614,
               dimension: "ROWS",
-              startIndex: sheetIndex - 1, // 0-based index, header is row 1
-              endIndex: sheetIndex, // exclusive
+              startIndex: sheetIndex - 1,
+              endIndex: sheetIndex,
             },
           },
         },

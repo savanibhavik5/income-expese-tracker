@@ -49,7 +49,7 @@ export default async function handler(req, res) {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: "Expeses Detail!A:E", // ✅ double-check sheet name spelling
+      range: "Expeses Detail!A2:E", // ✅ double-check sheet name spelling
     });
 
     res.setHeader("Content-Type", "application/json");

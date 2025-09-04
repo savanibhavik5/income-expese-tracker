@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 
   await sheets.spreadsheets.values.update({
     spreadsheetId,
-    range: `Expeses Detail!A${sheetIndex - 1}:E${sheetIndex - 1}`,
+    range: `Expeses Detail!A${sheetIndex}:E${sheetIndex}`,
     valueInputOption: "RAW",
     requestBody: {
       values: [[date, amount, category, paymentMethod, description]],
