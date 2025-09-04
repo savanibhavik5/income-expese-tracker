@@ -21,7 +21,6 @@ export default async function handler(req, res) {
     });
 
     const rows = response.data.values || [];
-    console.log(rows, "rows due wala");
     const formatted = rows
       .map((row, idx) => ({
         id: idx + 1,
