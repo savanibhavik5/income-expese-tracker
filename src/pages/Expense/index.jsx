@@ -555,7 +555,6 @@ const Expense = () => {
               required
             />
           </div>
-          {/* Amount */}
           <div className="flex flex-col">
             <label
               htmlFor="expense-amount"
